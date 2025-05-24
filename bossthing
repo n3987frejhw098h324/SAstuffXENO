@@ -1,0 +1,266 @@
+repeat wait() until game:IsLoaded() and game:GetService("Players")
+
+wait(3)
+local l = game:GetService("Lighting")
+l.Brightness = 2
+l.FogEnd = 999999
+l.FogStart = 0
+l.GlobalShadows = false
+l.ClockTime = 14
+
+-- now that its fully auto it is kinda useless. ill keep it in case of anything.
+local map = workspace:FindFirstChild("Map")
+if map and map:FindFirstChild("Launching Orb") then
+    map["Launching Orb"]:Destroy()
+end
+
+game:GetService("Players").LocalPlayer:WaitForChild("PlayerScripts"):FindFirstChild("Client2"):Destroy()
+
+local p = game:GetService("Players")
+local lp = p.LocalPlayer
+local c = lp.Character or lp.CharacterAdded:Wait()
+local hrp = c:WaitForChild("HumanoidRootPart")
+local h = c:WaitForChild("Humanoid")
+local ok = true
+local atk = game:GetService("Workspace").Dead
+local o = game:GetService("Workspace").ObbyW
+local ph = game:GetService("Workspace").BossPhase
+local hp = game:GetService("Workspace").TrollHealth
+local w = game:GetService("Workspace")
+
+if w:FindFirstChild("Effects") then
+    w.Effects:Destroy()
+end
+if w.Map:FindFirstChild("ThunderParts") then
+    w.Map.ThunderParts:Destroy()
+end
+
+local function eq()
+    local tool = c:FindFirstChild("KnightsSword")
+    if tool and tool:FindFirstChild("Handle") then
+        local box = Instance.new("SelectionBox")
+        box.Name = "sb"
+        box.Parent = tool.Handle
+        box.Adornee = tool.Handle
+        tool.Handle.Massless = true
+        tool.GripPos = Vector3.new(0,0,0)
+        c:FindFirstChildOfClass("Humanoid"):UnequipTools()
+        tool.Parent = c
+        tool.Handle.Size = Vector3.new(0.5, 0.5, 500)
+    end
+end
+
+if lp.Backpack:FindFirstChild("KnightsSword") then
+    lp.Backpack["KnightsSword"].Parent = c
+    eq()
+elseif c:FindFirstChild("KnightsSword") then
+    eq()
+end
+
+task.spawn(function()
+    while not atk.Value do task.wait()
+        if o.Value then
+            hrp.CFrame = CFrame.new(20.456, 113.245, 196.613)
+        else
+            if ph.Value == "None" then
+                hrp.CFrame = CFrame.new(-5.47, -4.45, 248.21)
+            else
+                hrp.CFrame = CFrame.new(-19.89, -4.77, 142.49)
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while not atk.Value do task.wait()
+        if not o.Value then
+            if c:FindFirstChild("KnightsSword") then
+                c.KnightsSword:Activate()
+            end
+        end
+    end
+end)
+
+local function pct(x, y)
+    return (x / y)
+end
+
+hp:GetPropertyChangedSignal("Value"):Connect(function()
+    if pct(hp.Value, hp.MaxHealth.Value) <= 0.003 and pct(hp.Value, hp.MaxHealth.Value) >= 0 then
+        if ok then
+            ok = false
+            c:FindFirstChildOfClass("Humanoid"):UnequipTools()
+            wait(0) --idfk what was the original gng tryna do with "WaitTime" but ok
+            lp.Backpack["KnightsSword"].Parent = c
+        end
+    end
+end)
+
+--ts redeems it automatically
+task.spawn(function()
+    while true do
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("ClickDetector") then
+                fireclickdetector(v)
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+-- ts the uhh aiming thing
+game:GetService("RunService").RenderStepped:Connect(function()
+    if not c or not c:FindFirstChild("HumanoidRootPart") or not workspace:FindFirstChild("TrollPrism") then return end
+    local pos = hrp.Position
+    local t = workspace.TrollPrism.Position
+    local dir = (t - pos).Unit
+    local side = Vector3.new(dir.Z, 0, -dir.X)
+    hrp.CFrame = CFrame.lookAt(pos, pos + side)
+end)
+
+task.spawn(function()
+    atk:GetPropertyChangedSignal("Value"):Connect(function()
+        if atk.Value == true then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/n3987frejhw098h324/SAstuff/refs/heads/main/storageshitt"))()
+            task.wait(15)
+            p.LocalPlayer:Kick("Teleporting...")
+            task.wait(1)
+            game:GetService("TeleportService"):Teleport(5780309044, lp)
+        end
+    end)
+end)
+
+local p = game:GetService("Players")
+local lp = p.LocalPlayer
+local gui = lp:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FullBlackScreen"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = gui
+
+local frame = Instance.new("Frame")
+frame.Name = "BlackFrame"
+frame.Size = UDim2.new(1, 0, 1, 0)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BorderSizePixel = 0
+frame.ZIndex = 999
+frame.Parent = screenGui
+
+local timerText = Instance.new("TextLabel")
+timerText.Name = "Timer"
+timerText.Size = UDim2.new(0, 200, 0, 50)
+timerText.Position = UDim2.new(0.5, -100, 0.5, -25)
+timerText.BackgroundTransparency = 1
+timerText.TextColor3 = Color3.new(1, 1, 1)
+timerText.Font = Enum.Font.SourceSansBold
+timerText.TextSize = 48
+timerText.Text = "00:00"
+timerText.ZIndex = 1000
+timerText.Parent = frame
+
+local bossHPText = Instance.new("TextLabel")
+bossHPText.Name = "BossHP"
+bossHPText.Size = UDim2.new(0, 200, 0, 30)
+bossHPText.Position = UDim2.new(0.5, -100, 0.5, -65)
+bossHPText.BackgroundTransparency = 1
+bossHPText.TextColor3 = Color3.new(1, 0.2, 0.2)
+bossHPText.Font = Enum.Font.SourceSansBold
+bossHPText.TextSize = 24
+bossHPText.Text = "Boss HP: ???"
+bossHPText.ZIndex = 1000
+bossHPText.Parent = frame
+
+local warningText = Instance.new("TextLabel")
+warningText.Name = "Warning"
+warningText.Size = UDim2.new(0, 400, 0, 30)
+warningText.Position = UDim2.new(0.5, -200, 0.5, 40)
+warningText.BackgroundTransparency = 1
+warningText.TextColor3 = Color3.new(1, 1, 1)
+warningText.Font = Enum.Font.SourceSans
+warningText.TextSize = 24
+warningText.Text = "if the timer goes over 20 minutes then you will be sent back to main game"
+warningText.ZIndex = 1000
+warningText.Parent = frame
+
+local invitee = Instance.new("TextLabel")
+invitee.Name = "TakeCare"
+invitee.Size = UDim2.new(0, 200, 0, 25)
+invitee.Position = UDim2.new(0.5, -100, 0.5, 75)
+invitee.BackgroundTransparency = 1
+invitee.TextColor3 = Color3.new(1, 1, 1)
+invitee.Font = Enum.Font.SourceSansItalic
+invitee.TextSize = 20
+invitee.Text = ".gg/GeKhkBZ2kf"
+invitee.ZIndex = 1000
+invitee.Parent = frame
+
+local itemFrame = Instance.new("Frame")
+itemFrame.Name = "BankItemDisplay"
+itemFrame.Size = UDim2.new(0, 400, 0, 50)
+itemFrame.Position = UDim2.new(0.5, -200, 0.3, -80)
+itemFrame.BackgroundTransparency = 1
+itemFrame.ZIndex = 1001
+itemFrame.Parent = screenGui
+
+for i = 1, 8 do
+	local slotLabel = Instance.new("TextLabel")
+	slotLabel.Name = "Slot" .. i
+	slotLabel.Size = UDim2.new(0, 45, 0, 45)
+	slotLabel.Position = UDim2.new(0, (i - 1) * 50, 0, 0)
+	slotLabel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	slotLabel.BorderSizePixel = 1
+	slotLabel.BorderColor3 = Color3.fromRGB(90, 90, 90)
+	slotLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	slotLabel.TextScaled = true
+	slotLabel.Font = Enum.Font.SourceSansSemibold
+	slotLabel.Text = "..."
+	slotLabel.ZIndex = 1002
+	slotLabel.Parent = itemFrame
+
+	task.spawn(function()
+		while true do
+			pcall(function()
+				local slot = lp:FindFirstChild("PlayerGui")
+					and lp.PlayerGui:FindFirstChild("BankNEW")
+					and lp.PlayerGui.BankNEW.Right.ImageLabel.ItemSlots.Slots:FindFirstChild(tostring(i))
+				if slot then
+					local itemNameVal = slot:FindFirstChild("ItemName")
+					slotLabel.Text = (itemNameVal and itemNameVal:IsA("StringValue")) and itemNameVal.Value or "..."
+				else
+					slotLabel.Text = "..."
+				end
+			end)
+			task.wait(1)
+		end
+	end)
+end
+
+local startTime = os.time()
+local function updateTimer()
+	local elapsed = os.time() - startTime
+	local minutes = math.floor(elapsed / 60)
+	local seconds = elapsed % 60
+	timerText.Text = string.format("%02d:%02d", minutes, seconds)
+
+	pcall(function()
+		if workspace:FindFirstChild("TrollHealth") and workspace.TrollHealth:IsA("NumberValue") then
+			bossHPText.Text = "Boss HP: " .. workspace.TrollHealth.Value
+		else
+			bossHPText.Text = "Boss HP: ???"
+		end
+	end)
+end
+
+while true do
+	updateTimer()
+	wait(1)
+end
+
+game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Died:Connect(function()
+    task.delay(5, function()
+        game:GetService("TeleportService"):Teleport(5780309044)
+    end)
+end)
